@@ -5,7 +5,7 @@ import axios from '../utils/axios';
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,11 +24,12 @@ const Login = () => {
 
     try {
       const response = await axios.post('/auth/login', formData);
-      // Store the token in localStorage
+
       localStorage.setItem('userToken', response.data.token);
-      
-      // Redirect to dashboard or home page
-      navigate('/');
+
+      localStorage.setItem('newUser',response.data.user);
+
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {

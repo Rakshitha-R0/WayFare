@@ -41,8 +41,11 @@ const Signup = () => {
         localStorage.setItem('userToken', response.data.token);
       }
       
+      if(response.data.user) {
+        localStorage.setItem('newUser', response.data.user);
+      }
      
-      navigate('/');
+      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {

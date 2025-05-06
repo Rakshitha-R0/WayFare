@@ -15,6 +15,7 @@ export const register=asyncHandler(async (req,res,next)=>{
         err.statusCode=400
         throw err;
     }
+    
     res.status(201).json({user:newUser,token})
 })
 

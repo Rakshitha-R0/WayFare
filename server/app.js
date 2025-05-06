@@ -23,7 +23,7 @@ const limiter = rateLimit({
 
 // Apply the rate limiting middleware to all requests.
 app.use(limiter)
-app.use(cors()) // Enable CORS for all routes
+app.use(cors());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/itinerary", itineraryRouter);

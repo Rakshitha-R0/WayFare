@@ -9,60 +9,64 @@ export const ItineraryPlan = asyncHandler(async (req) => {
       apiKey: process.env.OPEN_AI_KEY,
       baseURL: "https://openrouter.ai/api/v1",
     });
-
+  
+    const messages = [
+      {
+        role: "user",
+        content: `Create a travel itinerary for travel type ${travelType} for the location ${location} from date (${startDate} to date ${endDate},and budget of  $${budget}). Return JSON:
+        {
+          "days": [{
+            "date": "YYYY-MM-DD",
+            "plan": ["activity/place 1", "activity/place 2"],
+            "cost": 0,
+            "tip": "daily tip"
+          }],
+          "total": {
+            "stay": 0,
+            "food": 0,
+            "travel": 0
+          },
+          "tips": ["general tip 1", "general tip 2"]
+        }`,
+      },
+    ];
+  
     const response = await client.chat.completions.create({
       model: "deepseek/deepseek-r1:free",
-      messages: [
-        {
-            role: "user",
-            content: `Create a travel itinerary for travel type ${travelType} for the location ${location} from date (${startDate} to date ${endDate},and budget of  $${budget}). Return JSON:
-            {
-              "days": [{
-                "date": "YYYY-MM-DD",
-                "plan": ["activity/place 1", "activity/place 2"],
-                "cost": 0,
-                "tip": "daily tip"
-              }],
-              "total": {
-                "stay": 0,
-                "food": 0,
-                "travel": 0
-              },
-              "tips": ["general tip 1", "general tip 2"]
-            }`,
-        },
-    ],
+      messages,
     });
-
-    if (!response || !response.choices || !response.choices.length === 0) {
-      let err = new Error("No response from OpenAI");
-      err.statusCode = 500;
-      throw err;
+  
+    if (!response || !response.choices || response.choices.length === 0) {
+      throw new Error("No response from OpenAI");
     }
-
+  
     let content = response.choices[0].message.content;
-
-    // content = content
-    //   .replace(/```json\n/g, "")
-    //   .replace(/```/g, "")
-    //   .trim();
-
-    content = content.match(/{[\s\S]*}/);
-
-
-      const jsonData = JSON.parse(content[0]);
-      
-        const payload = req.body;
-        payload.itinerary = jsonData;
-        
-      await Itinerary.create(payload);
-
-      return { message: "Success", data: jsonData };
-
+  
+    content = content.replace(/```json\s*|```/g, "").trim();
+    const match = content.match(/{[\s\S]*}/);
+  
+    if (!match) {
+      throw new Error("Unable to parse JSON from the AI response.");
+    }
+  
+    const jsonData = JSON.parse(match[0]);
+  
+    const payload = {
+      ...req.body,
+      itinerary: jsonData,
+      originalPrompt: messages[0].content,
+      originalResponse: content
+    };
+  
+    await Itinerary.create(payload);
+  
+    return { message: "Success", data: jsonData };
+  
   } catch (error) {
     console.error("Error in ItineraryPlan:", error.message);
     throw error;
   }
+  
 });
 
 export const getItineraryPlan = asyncHandler(async () => {
