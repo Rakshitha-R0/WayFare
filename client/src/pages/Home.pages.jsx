@@ -29,7 +29,7 @@ const Home = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [debouncedInput, setDebouncedInput] = useState(""); // State for debounced input
+  const [debouncedInput, setDebouncedInput] = useState("");
   const [formData, setFormData] = useState({
     travelType: "",
     location: "",
