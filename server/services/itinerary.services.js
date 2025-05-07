@@ -1,5 +1,6 @@
 import Itinerary from "../model/itinerary.model.js";
 import asyncHandler from "express-async-handler";
+import axios from "axios";
 import OpenAI from "openai";
 
 export const ItineraryPlan = asyncHandler(async (req) => {
@@ -51,7 +52,7 @@ export const ItineraryPlan = asyncHandler(async (req) => {
   
     const jsonData = JSON.parse(match[0]);
   
-    const payload = {
+    const payload = { 
       ...req.body,
       itinerary: jsonData,
       originalPrompt: messages[0].content,
@@ -87,4 +88,20 @@ export const DeleteItinerary = asyncHandler(async (id) => {
     throw err;
   }
   return DeleteTravelPlan;
+})
+
+export const autoComplete = asyncHandler(async (req) => {
+  const {location} = req.query;
+  console.log(location,req.query);
+  
+  const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json',{
+    params: {
+      input: location,
+      key: process.env.GOOGLE_API_CLOUD,
+    },
+  });
+
+  console.log(response.data);
+  
+  return response.data.predictions.map((prediction) => prediction.description);
 })

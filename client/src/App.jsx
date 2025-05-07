@@ -7,6 +7,7 @@ import ProtectedRoute from "./component/ProtectRoutes";
 import Navbar from "./component/NavBar";
 
 function App() {
+  
   return (
     <>
       <Navbar />

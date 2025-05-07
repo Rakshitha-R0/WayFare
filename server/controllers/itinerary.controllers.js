@@ -1,5 +1,5 @@
 import asyncHandler from "express-async-handler";
-import { ItineraryPlan, getItineraryPlan, DeleteItinerary } from "../services/itinerary.services.js";
+import { ItineraryPlan, getItineraryPlan, DeleteItinerary, autoComplete } from "../services/itinerary.services.js";
 
 export const createNewItinerary = asyncHandler(async (req, res, next) => {
     console.log(req.body);
@@ -34,4 +34,13 @@ export const deleteItinerary = asyncHandler(async (req, res, next) => {
         return next(err);
     }
     res.status(200).json({data: deletedTravelPlan, message: "Itinerary deleted successfully" });
+})
+
+export const getAutoComplete = asyncHandler(async (req, res, next) => {
+    let autocomplete = await autoComplete(req);
+    if (!autocomplete) {
+        res.status(404).json({ message: "No data found" });
+        return;
+    }
+    res.status(200).json(autocomplete);
 })

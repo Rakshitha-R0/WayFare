@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../utils/axios.js";
+import axios from "../utils/axios";
 import useAuth from "../context/Auth.context";
 import useItinerary from "../context/Itinerary.context";
 import {
@@ -24,8 +24,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const Home = () => {
   const { token } = useAuth();
-  const { itineraries, setItineraries, deleteItinerary } = useItinerary();
+  const { itineraries, setItineraries } = useItinerary();
   const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [formData, setFormData] = useState({
     travelType: "",
     location: "",
@@ -42,17 +45,33 @@ const Home = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value, location: query });
   };
 
-  console.log(formData);
-  
+  const handleLocationChange = async (e) => {
+    const input = e.target.value;
+    setQuery(input);
+    setActiveIndex(-1);
+
+    if (input.length > 1) {
+      try {
+        const res = await axios.get("/itinerary/autocomplete", {
+          params: { location: input },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setSuggestions(res.data);
+      } catch (err) {
+        console.error("Error fetching suggestions", err);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("token ",token);
-      
       const response = await axios.post("/itinerary", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -63,8 +82,35 @@ const Home = () => {
     }
   };
 
+  const handleSelect = (description) => {
+    setQuery(description);
+    setSuggestions([]);
+  };
 
-  return (
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      setActiveIndex((prev) => (prev + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      const selected = suggestions[activeIndex];
+      handleSelect(selected);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`/itinerary/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setItineraries((prev) => prev.filter((itinerary) => itinerary._id !== id));
+      alert("Itinerary deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting itinerary:", error);
+    }
+  };
+
+  return token ? (
     <Box>
       <Container maxWidth="xl" sx={{ marginTop: 4 }}>
         <Grid container spacing={4}>
@@ -100,11 +146,39 @@ const Home = () => {
                   fullWidth
                   label="Location"
                   name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
+                  value={query}
+                  onChange={handleLocationChange}
+                  onKeyDown={handleKeyDown}
                   margin="normal"
                   required
                 />
+                {suggestions.length > 0 && (
+                  <ul
+                    style={{
+                      border: "1px solid #ccc",
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                      position: "absolute",
+                      backgroundColor: "white",
+                      zIndex: 1,
+                    }}
+                  >
+                    {suggestions.map((sug, index) => (
+                      <li
+                        key={sug}
+                        onClick={() => handleSelect(sug)}
+                        style={{
+                          padding: "8px",
+                          cursor: "pointer",
+                          backgroundColor: index === activeIndex ? "#f0f0f0" : "white",
+                        }}
+                      >
+                        {sug}
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <TextField
                   fullWidth
                   label="Start Date"
@@ -154,7 +228,7 @@ const Home = () => {
                 <List>
                   {itineraries.map((itinerary) => (
                     <ListItem
-                      key={`${itinerary._id}-${itinerary.location}`}
+                      key={itinerary._id}
                       sx={{
                         borderBottom: "1px solid #ddd",
                         paddingBottom: 2,
@@ -164,7 +238,7 @@ const Home = () => {
                       <ListItemText
                         primary={`Itinerary: ${itinerary.location}`}
                         secondary={
-                          <span>
+                          <>
                             <Typography variant="body2" component="span">
                               <strong>Travel Type:</strong> {itinerary.travelType}
                             </Typography>
@@ -180,18 +254,13 @@ const Home = () => {
                             <Typography variant="body2" component="span">
                               <strong>Budget:</strong> ${itinerary.budget}
                             </Typography>
-                            <br />
-                            {/* <Typography variant="body2" component="span">
-                              <strong>Itinerary:</strong> {JSON.stringify(itinerary.itinerary)}
-                            </Typography>
-                            <br /> */}
-                          </span>
+                          </>
                         }
                       />
                       <IconButton
                         edge="end"
                         aria-label="delete"
-                        onClick={() => deleteItinerary(itinerary._id)}
+                        onClick={() => handleDelete(itinerary._id)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -206,6 +275,8 @@ const Home = () => {
         </Grid>
       </Container>
     </Box>
+  ) : (
+    <p>Loading...</p>
   );
 };
 
