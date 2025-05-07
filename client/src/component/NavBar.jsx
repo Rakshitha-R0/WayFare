@@ -17,13 +17,15 @@ const settings = ["Profile", "Logout"];
 
 function Navbar() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const { token, user } = useAuth();
+  const { token, user, logout } = useAuth();
   
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-
-
+  const handleLogout = () => {
+    logout();
+    setAnchorElUser(null);
+  }
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
@@ -40,7 +42,6 @@ function Navbar() {
           }}
         >
           <img src={logo} alt="logo" style={{ height: "50px" }} />
-          {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
           <Box
             sx={{
               flexGrow: 0,
@@ -75,7 +76,10 @@ function Navbar() {
                   onClose={handleCloseUserMenu}
                 >
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <MenuItem key={setting} onClick={
+                      setting === "Logout" ? handleLogout :
+                      handleCloseUserMenu
+                      }>
                       <Typography sx={{ textAlign: "center" }}>
                         {setting}
                       </Typography>

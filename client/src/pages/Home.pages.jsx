@@ -20,7 +20,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material.Delete";
 
 const Home = () => {
   const { token } = useAuth();
@@ -29,6 +29,7 @@ const Home = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [debouncedInput, setDebouncedInput] = useState(""); // State for debounced input
   const [formData, setFormData] = useState({
     travelType: "",
     location: "",
@@ -39,34 +40,52 @@ const Home = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login");
+      navigate("/");
     }
   }, [token, navigate]);
+
+  // Debounce the input value
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedInput(query); // Update debounced input after delay
+    }, 500); // 500ms delay
+
+    return () => {
+      clearTimeout(handler); // Clear timeout on cleanup
+    };
+  }, [query]);
+
+  // Fetch suggestions when debounced input changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (debouncedInput.length > 1) {
+        try {
+          const res = await axios.get("/itinerary/autocomplete", {
+            params: { location: debouncedInput },
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log(res);
+          
+          setSuggestions(res.data);
+        } catch (err) {
+          console.error("Error fetching suggestions", err);
+        }
+      } else {
+        setSuggestions([]);
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedInput, token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value, location: query });
   };
 
-  const handleLocationChange = async (e) => {
-    const input = e.target.value;
-    setQuery(input);
+  const handleLocationChange = (e) => {
+    setQuery(e.target.value); // Update query state
     setActiveIndex(-1);
-
-    if (input.length > 1) {
-      try {
-        const res = await axios.get("/itinerary/autocomplete", {
-          params: { location: input },
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setSuggestions(res.data);
-      } catch (err) {
-        console.error("Error fetching suggestions", err);
-      }
-    } else {
-      setSuggestions([]);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -115,7 +134,7 @@ const Home = () => {
       <Container maxWidth="xl" sx={{ marginTop: 4 }}>
         <Grid container spacing={4}>
           {/* Form Section */}
-          <Grid item xs={12} md={4}>
+          <Grid>
             <Paper elevation={3} sx={{ padding: 3 }}>
               <Typography variant="h5" gutterBottom>
                 Create a Travel Itinerary
@@ -151,6 +170,8 @@ const Home = () => {
                   onKeyDown={handleKeyDown}
                   margin="normal"
                   required
+                  InputLabelProps={{ style: { color: "black" } }}
+                  sx={{ input: { color: "black" }, marginBottom: 2 }}
                 />
                 {suggestions.length > 0 && (
                   <ul
@@ -160,8 +181,10 @@ const Home = () => {
                       padding: 0,
                       margin: 0,
                       position: "absolute",
-                      backgroundColor: "white",
-                      zIndex: 1,
+                      backgroundColor: "#ffffff",
+                      zIndex: 1000,
+                      opacity: 1,
+                      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                     }}
                   >
                     {suggestions.map((sug, index) => (
@@ -171,7 +194,7 @@ const Home = () => {
                         style={{
                           padding: "8px",
                           cursor: "pointer",
-                          backgroundColor: index === activeIndex ? "#f0f0f0" : "white",
+                          backgroundColor: index === activeIndex ? "#f0f0f0" : "#fff",
                         }}
                       >
                         {sug}
@@ -219,7 +242,7 @@ const Home = () => {
           </Grid>
 
           {/* Itineraries List */}
-          <Grid item xs={12} md={8}>
+          <Grid>
             <Paper elevation={3} sx={{ padding: 3 }}>
               <Typography variant="h5" gutterBottom>
                 Saved Itineraries
@@ -262,8 +285,9 @@ const Home = () => {
                         aria-label="delete"
                         onClick={() => handleDelete(itinerary._id)}
                       >
-                        <DeleteIcon />
-                      </IconButton>
+                        {/* <DeleteIcon /> */}
+                        Delete
+s                      </IconButton>
                     </ListItem>
                   ))}
                 </List>

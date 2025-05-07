@@ -5,6 +5,7 @@ import Signup from "./pages/Signup.pages";
 import Welcome from "./pages/Welcome.pages";
 import ProtectedRoute from "./component/ProtectRoutes";
 import Navbar from "./component/NavBar";
+import Footer from "./component/Footer";
 
 function App() {
   
@@ -24,6 +25,7 @@ function App() {
           }
         />
       </Routes>
+      {/* <Footer /> */}
     </>
   );
 }
