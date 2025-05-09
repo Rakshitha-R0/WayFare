@@ -6,12 +6,22 @@ import Welcome from "./pages/Welcome.pages";
 import ProtectedRoute from "./component/ProtectRoutes";
 import Navbar from "./component/NavBar";
 import Footer from "./component/Footer";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { useState } from "react";
 
 function App() {
-  
+  const [mode, setMode] = useState("light"); 
+
+  const theme = createTheme({
+    palette: {
+      mode: mode, 
+    },
+  });
+
   return (
-    <>
-      <Navbar />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Navbar mode={mode} setMode={setMode} />
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
@@ -25,8 +35,8 @@ function App() {
           }
         />
       </Routes>
-      {/* <Footer /> */}
-    </>
+      <Footer />
+    </ThemeProvider>
   );
 }
 

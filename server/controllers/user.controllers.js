@@ -1,5 +1,5 @@
 import asyncHandler from "express-async-handler";
-import { findUserByID, findUserByEmail, findAllUsers } from "../services/user.services.js";
+import { findUserByID, findUserByEmail, findAllUsers, updateUser } from "../services/user.services.js";
 
 
 export const getUsers=asyncHandler(async (req,res,next)=>{
@@ -30,4 +30,15 @@ export const getUserByEmail = asyncHandler(async(req, res, next) => {
         throw err;
     }
     res.status(200).json(existingUser);
+})
+
+export const updateTheUser = asyncHandler(async (req, res, next) => {
+    const {id} = req.params;
+    let user = await updateUser(id, req);
+    if(!user){
+        let err = new Error("User not found");
+        err.statusCode = 404;
+        throw err;
+    }
+    res.status(200).json(user);
 })

@@ -8,18 +8,26 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 const Footer = () => {
   return (
     <Box
-      sx={{
-        backgroundColor: "#ffffff", 
-        color: "#333", 
-        padding: "20px 0",
-        marginTop: "auto",
-        borderTop: "1px solid #ddd", 
-      }}
+    sx={{
+      backgroundColor: "#ffffff",
+      color: "#333",
+      padding: "20px 0",
+      marginTop: "40px",
+      position: "relative",
+      fontSize: "14px",
+      fontFamily: "Arial, sans-serif",
+      fontWeight: "400",
+      lineHeight: "1.5",
+      letterSpacing: "0.5px",
+      background: "linear-gradient(to right, #f8f9fa, #e9ecef)",
+      boxShadow: "0 -1px 5px rgba(0, 0, 0, 0.1)",
+      borderTop: "1px solid #ddd",
+    }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           {/* About Section */}
-          <Grid item xs={12} md={4}>
+          <Grid >
             <Typography variant="h6" gutterBottom sx={{ color: "#000" }}>
               About Wayfarer
             </Typography>
@@ -29,7 +37,7 @@ const Footer = () => {
           </Grid>
 
           {/* Navigation Links */}
-          <Grid item xs={12} md={4}>
+          <Grid >
             <Typography variant="h6" gutterBottom sx={{ color: "#000" }}>
               Quick Links
             </Typography>
@@ -59,7 +67,7 @@ const Footer = () => {
           </Grid>
 
           {/* Social Media Links */}
-          <Grid item xs={12} md={4}>
+          <Grid >
             <Typography variant="h6" gutterBottom sx={{ color: "#000" }}>
               Follow Us
             </Typography>

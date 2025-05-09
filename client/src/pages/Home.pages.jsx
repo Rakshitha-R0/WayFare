@@ -20,7 +20,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-// import DeleteIcon from "@mui/icons-material.Delete";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Home = () => {
   const { token } = useAuth();
@@ -65,7 +65,7 @@ const Home = () => {
             headers: { Authorization: `Bearer ${token}` },
           });
           console.log(res);
-          
+
           setSuggestions(res.data);
         } catch (err) {
           console.error("Error fetching suggestions", err);
@@ -110,7 +110,9 @@ const Home = () => {
     if (e.key === "ArrowDown") {
       setActiveIndex((prev) => (prev + 1) % suggestions.length);
     } else if (e.key === "ArrowUp") {
-      setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+      setActiveIndex(
+        (prev) => (prev - 1 + suggestions.length) % suggestions.length
+      );
     } else if (e.key === "Enter" && activeIndex >= 0) {
       const selected = suggestions[activeIndex];
       handleSelect(selected);
@@ -122,7 +124,9 @@ const Home = () => {
       await axios.delete(`/itinerary/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setItineraries((prev) => prev.filter((itinerary) => itinerary._id !== id));
+      setItineraries((prev) =>
+        prev.filter((itinerary) => itinerary._id !== id)
+      );
       alert("Itinerary deleted successfully!");
     } catch (error) {
       console.error("Error deleting itinerary:", error);
@@ -194,7 +198,8 @@ const Home = () => {
                         style={{
                           padding: "8px",
                           cursor: "pointer",
-                          backgroundColor: index === activeIndex ? "#f0f0f0" : "#fff",
+                          backgroundColor:
+                            index === activeIndex ? "#f0f0f0" : "#fff",
                         }}
                       >
                         {sug}
@@ -263,7 +268,8 @@ const Home = () => {
                         secondary={
                           <>
                             <Typography variant="body2" component="span">
-                              <strong>Travel Type:</strong> {itinerary.travelType}
+                              <strong>Travel Type:</strong>{" "}
+                              {itinerary.travelType}
                             </Typography>
                             <br />
                             <Typography variant="body2" component="span">
@@ -281,13 +287,14 @@ const Home = () => {
                         }
                       />
                       <IconButton
-                        edge="end"
                         aria-label="delete"
+                        size="large"
+                        variant="outlined"
+                        edge="end"
                         onClick={() => handleDelete(itinerary._id)}
                       >
-                        {/* <DeleteIcon /> */}
-                        Delete
-s                      </IconButton>
+                        <DeleteIcon />
+                      </IconButton>
                     </ListItem>
                   ))}
                 </List>

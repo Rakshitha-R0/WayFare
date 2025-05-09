@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const Welcome = () => {
   return (
-    <div>
+    <div style={{ marginTop: "10px" }} className="welcome-page">
         <div className="welcome-container" >
             <h1>Welcome to  Wayfarer!</h1>
             <p>We are glad to have you here. Explore our features and enjoy your stay!</p>

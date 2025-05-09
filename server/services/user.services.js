@@ -46,3 +46,13 @@ export const findAllUsers = asyncHandler(async () => {
     }
     return allUsers;
 })
+
+export const updateUser = asyncHandler(async (id, req) => {
+    let updatedUser=await User.findByIdAndUpdate(id,{userImage:req.file.path},{new:true})
+    if(!updatedUser){
+        let err = new Error("User not found");
+        err.statusCode = 404;
+        throw err;
+    }
+    return updatedUser;
+})
