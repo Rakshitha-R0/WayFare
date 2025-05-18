@@ -1,30 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Box, Container, Grid } from "@mui/material";
+import {useAuth} from "../context/Auth.context";
 import axios from "../utils/axios";
-import useAuth from "../context/Auth.context";
-import useItinerary from "../context/Itinerary.context";
-import {
-  Box,
-  Button,
-  Grid,
-  Paper,
-  TextField,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-  Container,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import Navbar from "../component/NavBar";
+import ItineraryForm from "../component/Itinerary/ItineraryForm";
+import ItineraryList from "../component/Itinerary/ItineraryList";
+import { useTheme } from '@mui/material/styles';
+
+const capitalizeWords = (str) => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 
 const Home = () => {
   const { token } = useAuth();
-  const { itineraries, setItineraries } = useItinerary();
+  const theme = useTheme();
+
+  const [itineraries, setItineraries] = useState([]);
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -37,6 +32,7 @@ const Home = () => {
     endDate: "",
     budget: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!token) {
@@ -44,18 +40,13 @@ const Home = () => {
     }
   }, [token, navigate]);
 
-  // Debounce the input value
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedInput(query); // Update debounced input after delay
-    }, 500); // 500ms delay
-
-    return () => {
-      clearTimeout(handler); // Clear timeout on cleanup
-    };
+      setDebouncedInput(query);
+    }, 500);
+    return () => clearTimeout(handler);
   }, [query]);
 
-  // Fetch suggestions when debounced input changes
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (debouncedInput.length > 1) {
@@ -64,8 +55,6 @@ const Home = () => {
             params: { location: debouncedInput },
             headers: { Authorization: `Bearer ${token}` },
           });
-          console.log(res);
-
           setSuggestions(res.data);
         } catch (err) {
           console.error("Error fetching suggestions", err);
@@ -74,9 +63,28 @@ const Home = () => {
         setSuggestions([]);
       }
     };
-
     fetchSuggestions();
   }, [debouncedInput, token]);
+
+  const fetchItineraries = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("/itinerary", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setItineraries(response.data);
+    } catch (error) {
+      console.error("Error fetching itineraries:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchItineraries();
+    }
+  }, [token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -84,17 +92,25 @@ const Home = () => {
   };
 
   const handleLocationChange = (e) => {
-    setQuery(e.target.value); // Update query state
+    setQuery(e.target.value);
     setActiveIndex(-1);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/itinerary", formData, {
+      await axios.post("/itinerary", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setItineraries((prev) => [...prev, response.data]);
+      setFormData({
+        travelType: "",
+        location: "",
+        startDate: "",
+        endDate: "",
+        budget: "",
+      });
+      setQuery("");
+      await fetchItineraries();
       alert("Itinerary created successfully!");
     } catch (error) {
       console.error("Error creating itinerary:", error);
@@ -103,6 +119,7 @@ const Home = () => {
 
   const handleSelect = (description) => {
     setQuery(description);
+    setFormData(prev => ({ ...prev, location: description }));
     setSuggestions([]);
   };
 
@@ -110,9 +127,7 @@ const Home = () => {
     if (e.key === "ArrowDown") {
       setActiveIndex((prev) => (prev + 1) % suggestions.length);
     } else if (e.key === "ArrowUp") {
-      setActiveIndex(
-        (prev) => (prev - 1 + suggestions.length) % suggestions.length
-      );
+      setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
     } else if (e.key === "Enter" && activeIndex >= 0) {
       const selected = suggestions[activeIndex];
       handleSelect(selected);
@@ -124,190 +139,59 @@ const Home = () => {
       await axios.delete(`/itinerary/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setItineraries((prev) =>
-        prev.filter((itinerary) => itinerary._id !== id)
-      );
+      await fetchItineraries();
       alert("Itinerary deleted successfully!");
     } catch (error) {
       console.error("Error deleting itinerary:", error);
     }
   };
 
-  return token ? (
-    <Box>
-      <Container maxWidth="xl" sx={{ marginTop: 4 }}>
-        <Grid container spacing={4}>
-          {/* Form Section */}
-          <Grid>
-            <Paper elevation={3} sx={{ padding: 3 }}>
-              <Typography variant="h5" gutterBottom>
-                Create a Travel Itinerary
-              </Typography>
-              <form onSubmit={handleSubmit}>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel id="travel-type-label">Travel Type</InputLabel>
-                  <Select
-                    labelId="travel-type-label"
-                    label="Travel Type"
-                    name="travelType"
-                    value={formData.travelType}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <MenuItem value="">Select a travel type</MenuItem>
-                    <MenuItem value="solo">Solo Travel</MenuItem>
-                    <MenuItem value="family">Family Vacation</MenuItem>
-                    <MenuItem value="business">Business Trip</MenuItem>
-                    <MenuItem value="romantic">Romantic Getaway</MenuItem>
-                    <MenuItem value="adventure">Adventure Travel</MenuItem>
-                    <MenuItem value="cultural">Cultural Experience</MenuItem>
-                    <MenuItem value="luxury">Luxury Vacation</MenuItem>
-                    <MenuItem value="budget">Budget Travel</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField
-                  fullWidth
-                  label="Location"
-                  name="location"
-                  value={query}
-                  onChange={handleLocationChange}
-                  onKeyDown={handleKeyDown}
-                  margin="normal"
-                  required
-                  InputLabelProps={{ style: { color: "black" } }}
-                  sx={{ input: { color: "black" }, marginBottom: 2 }}
-                />
-                {suggestions.length > 0 && (
-                  <ul
-                    style={{
-                      border: "1px solid #ccc",
-                      listStyle: "none",
-                      padding: 0,
-                      margin: 0,
-                      position: "absolute",
-                      backgroundColor: "#ffffff",
-                      zIndex: 1000,
-                      opacity: 1,
-                      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                    }}
-                  >
-                    {suggestions.map((sug, index) => (
-                      <li
-                        key={sug}
-                        onClick={() => handleSelect(sug)}
-                        style={{
-                          padding: "8px",
-                          cursor: "pointer",
-                          backgroundColor:
-                            index === activeIndex ? "#f0f0f0" : "#fff",
-                        }}
-                      >
-                        {sug}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <TextField
-                  fullWidth
-                  label="Start Date"
-                  name="startDate"
-                  type="date"
-                  value={formData.startDate}
-                  onChange={handleInputChange}
-                  margin="normal"
-                  required
-                  InputLabelProps={{ shrink: true }}
-                />
-                <TextField
-                  fullWidth
-                  label="End Date"
-                  name="endDate"
-                  type="date"
-                  value={formData.endDate}
-                  onChange={handleInputChange}
-                  margin="normal"
-                  required
-                  InputLabelProps={{ shrink: true }}
-                />
-                <TextField
-                  fullWidth
-                  label="Budget"
-                  name="budget"
-                  type="number"
-                  value={formData.budget}
-                  onChange={handleInputChange}
-                  margin="normal"
-                  required
-                />
-                <Button type="submit" variant="contained" fullWidth>
-                  Create Itinerary
-                </Button>
-              </form>
-            </Paper>
-          </Grid>
+  const suggestionStyles = {
+    position: 'absolute',
+    width: '100%',
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[3],
+    borderRadius: 1,
+    zIndex: 1000,
+    mt: 0.5,
+    maxHeight: 200,
+    overflowY: 'auto',
+  };
 
-          {/* Itineraries List */}
-          <Grid>
-            <Paper elevation={3} sx={{ padding: 3 }}>
-              <Typography variant="h5" gutterBottom>
-                Saved Itineraries
-              </Typography>
-              {itineraries?.length > 0 ? (
-                <List>
-                  {itineraries.map((itinerary) => (
-                    <ListItem
-                      key={itinerary._id}
-                      sx={{
-                        borderBottom: "1px solid #ddd",
-                        paddingBottom: 2,
-                        marginBottom: 2,
-                      }}
-                    >
-                      <ListItemText
-                        primary={`Itinerary: ${itinerary.location}`}
-                        secondary={
-                          <>
-                            <Typography variant="body2" component="span">
-                              <strong>Travel Type:</strong>{" "}
-                              {itinerary.travelType}
-                            </Typography>
-                            <br />
-                            <Typography variant="body2" component="span">
-                              <strong>Start Date:</strong> {itinerary.startDate}
-                            </Typography>
-                            <br />
-                            <Typography variant="body2" component="span">
-                              <strong>End Date:</strong> {itinerary.endDate}
-                            </Typography>
-                            <br />
-                            <Typography variant="body2" component="span">
-                              <strong>Budget:</strong> ${itinerary.budget}
-                            </Typography>
-                          </>
-                        }
-                      />
-                      <IconButton
-                        aria-label="delete"
-                        size="large"
-                        variant="outlined"
-                        edge="end"
-                        onClick={() => handleDelete(itinerary._id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Typography>No itineraries found.</Typography>
-              )}
-            </Paper>
+  return token ? (
+    <>
+      <Navbar />
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Container maxWidth="xl">
+          <Grid container spacing={3}>
+            <Grid >
+              <ItineraryForm
+                formData={formData}
+                query={query}
+                suggestions={suggestions}
+                activeIndex={activeIndex}
+                onSubmit={handleSubmit}
+                onInputChange={handleInputChange}
+                onLocationChange={handleLocationChange}
+                onLocationSelect={handleSelect}
+                onKeyDown={handleKeyDown}
+                suggestionStyles={suggestionStyles}
+              />
+            </Grid>
+            <Grid>
+              <ItineraryList
+                itineraries={itineraries}
+                isLoading={isLoading}
+                onDelete={handleDelete}
+                capitalizeWords={capitalizeWords}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
-    </Box>
+        </Container>
+      </Box>
+    </>
   ) : (
-    <p>Loading...</p>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} />
   );
 };
 

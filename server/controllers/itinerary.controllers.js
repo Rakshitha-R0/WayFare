@@ -1,11 +1,10 @@
 import asyncHandler from "express-async-handler";
-import { ItineraryPlan, getItineraryPlan, DeleteItinerary, autoComplete } from "../services/itinerary.services.js";
+import { ItineraryPlan, getItineraryPlan, DeleteItinerary, autoComplete, getItineraryById } from "../services/itinerary.services.js";
 
 export const createNewItinerary = asyncHandler(async (req, res, next) => {
     console.log(req.body);
     
 const newItinerary = await ItineraryPlan(req);
-console.log(newItinerary);
 
     if (!newItinerary) {
         let err = new Error("Failed to create itinerary");
@@ -16,8 +15,8 @@ console.log(newItinerary);
     
 })
 
-export const getItinerary = asyncHandler(async (req, res, next) => {
-    const ExistingItinerary = await getItineraryPlan();
+export const getItineraries = asyncHandler(async (req, res, next) => {
+    const ExistingItinerary = await getItineraryPlan(req);
     if (!ExistingItinerary) {
         let err = new Error("Itinerary not found");
         err.statusCode = 404;
@@ -43,4 +42,14 @@ export const getAutoComplete = asyncHandler(async (req, res, next) => {
         return;
     }
     res.status(200).json(autocomplete);
+})
+
+export const getItinerary = asyncHandler(async (req, res, next) => {
+    const itinerary = await getItineraryById(req.params.id);
+    if (!itinerary) {
+        let err = new Error("Itinerary not found");
+        err.statusCode = 404;
+        return next(err);
+    }
+    res.status(200).json(itinerary);
 })

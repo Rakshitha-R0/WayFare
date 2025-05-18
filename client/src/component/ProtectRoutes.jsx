@@ -1,34 +1,21 @@
-import React, { useEffect, useState } from "react";
-import useAuth from "../context/Auth.context";
-import { Link } from "react-router-dom";
+import React, { useEffect } from 'react';
+import {useAuth} from "../context/Auth.context";
+import { useNavigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
-      return setIsAuthenticated(true);
-    } else {
-      return setIsAuthenticated(false);
+    // Check if token exists
+    if (!token) {
+      navigate('/login');
+      return;
     }
-  }, [token]);
+  }, [token, navigate]);
 
-  console.log(isAuthenticated);
-
-  // if (isLoading) return <div>Loading...</div>;
-
-  return isAuthenticated
-    ? (children)
-    : null;
-      // <>
-      // <div className="error-message">You are not authorized to view this page. Please log in.</div>
-      // <Link to="/login" style={{ textDecoration: 'none', color: 'white' }}>
-      //   <button className="explore-button">
-      //     Login
-      //   </button>
-      // </Link>
-      // </>
+  // Only render children if token exists
+  return token ? children : null;
 };
 
 export default ProtectedRoute;

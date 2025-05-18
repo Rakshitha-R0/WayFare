@@ -1,13 +1,11 @@
-import express from 'express';
-import { getUsers, updateTheUser } from '../controllers/user.controllers.js';
-import auth from '../middleware/auth.js';
-import upload  from '../middleware/fileUpload.js';
+import express from "express";
+import { getUsers, updateTheUser } from "../controllers/user.controllers.js";
+import auth from "../middleware/auth.js";
+import upload from "../middleware/fileUpload.js";
 
-const router=express.Router();
+const router = express.Router();
 
-
-router.get("/",auth,getUsers)
-router.put('/:id',auth, upload ,updateTheUser)
-
+router.get("/", auth, getUsers);
+router.put("/:id", auth, upload, updateTheUser);
 
 export default router;

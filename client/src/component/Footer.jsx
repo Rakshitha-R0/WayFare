@@ -43,7 +43,7 @@ const Footer = () => {
             </Typography>
             <ul style={{ listStyle: "none", padding: 0 }}>
               <li>
-                <Link to="/" style={{ color: "#007bff", textDecoration: "none" }}>
+                <Link to="/home" style={{ color: "#007bff", textDecoration: "none" }}>
                   Home
                 </Link>
               </li>
