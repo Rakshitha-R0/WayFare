@@ -2,13 +2,32 @@ import User from '../model/user.model.js'
 import asyncHandler from "express-async-handler";
 
 export const createUser = asyncHandler(async (req) =>{
-    const newUser = await User.create(req.body);
-    if(!newUser){
-        let err = new Error("User not created");
-        err.statusCode = 400;
+    let userData = {};
+    console.log("User data:", req.body);
+    
+    if (req.body.googleId) {
+        // Google signup: only require email and googleId
+        userData.email = req.body.email;
+        userData.googleId = req.body.googleId;
+        userData.username = req.body.username || req.body.email.split('@')[0];
+    } else {
+        userData.username = req.body.username;
+        userData.email = req.body.email;
+        userData.password = req.body.password;
+        userData.confirmPassword = req.body.confirmPassword;
+    }
+    try {
+        const newUser = await User.create(userData);
+        if(!newUser){
+            let err = new Error("User not created");
+            err.statusCode = 400;
+            throw err;
+        }
+        return newUser;
+    } catch (err) {
+        console.error('User creation error:', err);
         throw err;
     }
-    return newUser;
 })
 
 export const findUserByID = asyncHandler( async (id) => {

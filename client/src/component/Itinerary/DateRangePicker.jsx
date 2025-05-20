@@ -1,5 +1,4 @@
-import React from 'react';
-import { Stack, TextField } from "@mui/material";
+import { Stack, TextField, InputAdornment } from "@mui/material";
 import DateRangeIcon from '@mui/icons-material/DateRange';
 
 const DateRangePicker = ({ startDate, endDate, onChange }) => {
@@ -15,11 +14,14 @@ const DateRangePicker = ({ startDate, endDate, onChange }) => {
         required
         fullWidth
         InputProps={{
-          startAdornment: <DateRangeIcon sx={{ mr: 1, color: 'action.active' }} />,
+          startAdornment: (
+            <InputAdornment position="start">
+              <DateRangeIcon sx={{ color: 'action.active' }} />
+            </InputAdornment>
+          ),
         }}
         InputLabelProps={{ 
-          shrink: true,
-          sx: { ml: 4 }
+          shrink: true
         }}
         sx={{
           '& input': {
@@ -46,11 +48,14 @@ const DateRangePicker = ({ startDate, endDate, onChange }) => {
         required
         fullWidth
         InputProps={{
-          startAdornment: <DateRangeIcon sx={{ mr: 1, color: 'action.active' }} />,
+          startAdornment: (
+            <InputAdornment position="start">
+              <DateRangeIcon sx={{ color: 'action.active' }} />
+            </InputAdornment>
+          ),
         }}
         InputLabelProps={{ 
-          shrink: true,
-          sx: { ml: 4 }
+          shrink: true
         }}
         sx={{
           '& input': {

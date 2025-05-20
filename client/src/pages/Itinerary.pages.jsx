@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
-import {useAuth} from "../context/Auth.context";
-import { 
-  Box, 
-  Container, 
-  Paper, 
-  Typography, 
-  Grid, 
+import useAuth from "../context/Auth.context";
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Grid,
   Divider,
-  Chip,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  IconButton
+  IconButton,
+  CircularProgress
 } from "@mui/material";
 import Navbar from "../component/NavBar";
 import { format } from "date-fns";
@@ -23,7 +23,6 @@ import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import {CircularProgress} from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Itinerary = () => {
@@ -54,7 +53,7 @@ const Itinerary = () => {
 
   useEffect(() => {
     fetchItinerary(id);
-  }, [id]);
+  }, [id, token]);
 
   if (loading) {
     return (

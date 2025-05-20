@@ -1,18 +1,26 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Container, Grid } from "@mui/material";
-import {useAuth} from "../context/Auth.context";
+import {
+  Box,
+  Container,
+  Grid,
+  Snackbar,
+  Backdrop,
+  CircularProgress,
+} from "@mui/material";
+import useAuth from "../context/Auth.context";
 import axios from "../utils/axios";
 import Navbar from "../component/NavBar";
 import ItineraryForm from "../component/Itinerary/ItineraryForm";
 import ItineraryList from "../component/Itinerary/ItineraryList";
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from "@mui/material/styles";
+import Footer from "../component/Footer";
 
 const capitalizeWords = (str) => {
   return str
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 const Home = () => {
@@ -33,6 +41,9 @@ const Home = () => {
     budget: "",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [openBackdrop, setOpenBackdrop] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -66,11 +77,11 @@ const Home = () => {
     fetchSuggestions();
   }, [debouncedInput, token]);
 
-  const fetchItineraries = async () => {
+  const fetchItineraries = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await axios.get("/itinerary", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setItineraries(response.data);
     } catch (error) {
@@ -78,13 +89,13 @@ const Home = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     if (token) {
       fetchItineraries();
     }
-  }, [token]);
+  }, [token, fetchItineraries]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -98,6 +109,7 @@ const Home = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setOpenBackdrop(true);
     try {
       await axios.post("/itinerary", formData, {
         headers: { Authorization: `Bearer ${token}` },
@@ -111,26 +123,14 @@ const Home = () => {
       });
       setQuery("");
       await fetchItineraries();
-      alert("Itinerary created successfully!");
+      setSnackbarMsg("Itinerary created");
+      setOpenSnackbar(true);
     } catch (error) {
+      setSnackbarMsg("Failed to create itinerary");
+      setOpenSnackbar(true);
       console.error("Error creating itinerary:", error);
-    }
-  };
-
-  const handleSelect = (description) => {
-    setQuery(description);
-    setFormData(prev => ({ ...prev, location: description }));
-    setSuggestions([]);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "ArrowDown") {
-      setActiveIndex((prev) => (prev + 1) % suggestions.length);
-    } else if (e.key === "ArrowUp") {
-      setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
-    } else if (e.key === "Enter" && activeIndex >= 0) {
-      const selected = suggestions[activeIndex];
-      handleSelect(selected);
+    } finally {
+      setOpenBackdrop(false);
     }
   };
 
@@ -140,22 +140,49 @@ const Home = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchItineraries();
-      alert("Itinerary deleted successfully!");
+      setSnackbarMsg("Itinerary deleted successfully!");
+      setOpenSnackbar(true);
     } catch (error) {
+      setSnackbarMsg("Failed to delete itinerary");
+      setOpenSnackbar(true);
       console.error("Error deleting itinerary:", error);
     }
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
+    setOpenSnackbar(false);
+  };
+
+  const handleSelect = (description) => {
+    setQuery(description);
+    setFormData((prev) => ({ ...prev, location: description }));
+    setSuggestions([]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      setActiveIndex((prev) => (prev + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      setActiveIndex(
+        (prev) => (prev - 1 + suggestions.length) % suggestions.length
+      );
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      const selected = suggestions[activeIndex];
+      handleSelect(selected);
+    }
+  };
+
   const suggestionStyles = {
-    position: 'absolute',
-    width: '100%',
+    position: "absolute",
+    width: "100%",
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[3],
     borderRadius: 1,
     zIndex: 1000,
     mt: 0.5,
     maxHeight: 200,
-    overflowY: 'auto',
+    overflowY: "auto",
   };
 
   return token ? (
@@ -164,7 +191,7 @@ const Home = () => {
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Container maxWidth="xl">
           <Grid container spacing={3}>
-            <Grid >
+            <Grid>
               <ItineraryForm
                 formData={formData}
                 query={query}
@@ -188,10 +215,30 @@ const Home = () => {
             </Grid>
           </Grid>
         </Container>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={openBackdrop}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          message={snackbarMsg}
+        />
       </Box>
+      <Footer />
     </>
   ) : (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} />
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    />
   );
 };
 

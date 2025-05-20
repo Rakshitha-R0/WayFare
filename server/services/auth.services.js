@@ -18,5 +18,17 @@ export const loginUser = asyncHandler(async(req) => {
         err.statusCode = 404;
         throw err;
     }
+    // If the user is a Google user but googleId is not present in the login request, return an error
+    if (existingUser.googleId && !req.body.googleId) {
+        let err = new Error("Google ID required for Google login.");
+        err.statusCode = 400;
+        throw err;
+    }
+    // If the request is for Google login, but the user is not a Google user
+    if (req.body.googleId && !existingUser.googleId) {
+        let err = new Error("Google account not linked. Please sign up with Google first.");
+        err.statusCode = 400;
+        throw err;
+    }
     return existingUser;
 })

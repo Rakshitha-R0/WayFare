@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
-import {useAuth} from '../context/Auth.context';
+import useAuth from '../context/Auth.context';
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import {
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import LoginIcon from '@mui/icons-material/Login';
+import { useGoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const { token, setToken, setUser } = useAuth();
@@ -52,6 +53,36 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // Google Sign-In handler
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const { access_token } = tokenResponse;
+      try {
+        // Get user info from Google API
+        const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        });
+        const { email, sub: googleId,} = res.data;
+        // Send to your backend to login/register
+        const backendRes = await axios.post('/auth/login', {
+          email,
+          googleId,
+        });
+        setToken(backendRes.data.token);
+        setUser(backendRes.data.user);
+        navigate('/home');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Google sign-in failed. Please try again.');
+      }
+    },
+    onError: (errorResponse) => {
+      setError(errorResponse.response?.data?.message || 'Google sign-in failed. Please try again.');
+      console.error("Login Failed:", errorResponse);
+    },
+  });
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -112,6 +143,15 @@ const Login = () => {
               startIcon={loading ? <CircularProgress size={20} /> : <LoginIcon />}
             >
               {loading ? 'Logging in...' : 'Login'}
+            </Button>
+            <Button
+              onClick={() => googleLogin()}
+              fullWidth
+              variant="outlined"
+              sx={{ mt: 1, mb: 2 }}
+              startIcon={<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" style={{ width: 20, height: 20 }} />}
+            >
+              Login with Google
             </Button>
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2">

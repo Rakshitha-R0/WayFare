@@ -1,119 +1,111 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { Box, Typography, Container, Grid, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Container,
+  Grid,
+  IconButton,
+  Stack,
+  Divider,
+} from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
 const Footer = () => {
   return (
     <Box
-    sx={{
-      backgroundColor: "#ffffff",
-      color: "#333",
-      padding: "20px 0",
-      marginTop: "40px",
-      position: "relative",
-      fontSize: "14px",
-      fontFamily: "Arial, sans-serif",
-      fontWeight: "400",
-      lineHeight: "1.5",
-      letterSpacing: "0.5px",
-      background: "linear-gradient(to right, #f8f9fa, #e9ecef)",
-      boxShadow: "0 -1px 5px rgba(0, 0, 0, 0.1)",
-      borderTop: "1px solid #ddd",
-    }}
+      sx={{
+        backgroundColor: "#ffffff",
+        color: "#333",
+        padding: "20px 0",
+        marginTop: "40px",
+        position: "relative",
+        fontSize: "14px",
+        fontFamily: "Arial, sans-serif",
+        fontWeight: "400",
+        lineHeight: "1.5",
+        letterSpacing: "0.5px",
+        background: "linear-gradient(to right, #f8f9fa, #e9ecef)",
+        boxShadow: "0 -1px 5px rgba(0, 0, 0, 0.1)",
+        borderTop: "1px solid #ddd",
+      }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
-          {/* About Section */}
           <Grid >
-            <Typography variant="h6" gutterBottom sx={{ color: "#000" }}>
+            <Typography variant="h6" gutterBottom>
               About Wayfarer
             </Typography>
-            <Typography variant="body2" sx={{ color: "#555" }}>
-              Wayfarer is your ultimate travel companion. Plan your trips, explore destinations, and create unforgettable memories with ease.
+            <Typography variant="body2" color="text.secondary">
+              Your AI-powered travel companion for creating perfect itineraries.
+              Plan your next adventure with ease.
             </Typography>
           </Grid>
-
-          {/* Navigation Links */}
           <Grid >
-            <Typography variant="h6" gutterBottom sx={{ color: "#000" }}>
+            <Typography variant="h6" gutterBottom>
               Quick Links
             </Typography>
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              <li>
-                <Link to="/home" style={{ color: "#007bff", textDecoration: "none" }}>
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/login"
-                  style={{ color: "#007bff", textDecoration: "none" }}
-                >
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/signup"
-                  style={{ color: "#007bff", textDecoration: "none" }}
-                >
-                  Signup
-                </Link>
-              </li>
-            </ul>
+            <Stack spacing={1}>
+              <Link
+                to="/login"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                Sign Up
+              </Link>
+            </Stack>
           </Grid>
-
-          {/* Social Media Links */}
           <Grid >
-            <Typography variant="h6" gutterBottom sx={{ color: "#000" }}>
-              Follow Us
+            <Typography variant="h6" gutterBottom>
+              Connect With Us
             </Typography>
-            <Box>
+            <Stack direction="row" spacing={2}>
               <IconButton
-                component="a"
+                color="primary"
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{ color: "#007bff" }}
               >
                 <FacebookIcon />
               </IconButton>
               <IconButton
-                component="a"
+                color="primary"
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{ color: "#007bff" }}
               >
                 <TwitterIcon />
               </IconButton>
               <IconButton
-                component="a"
+                color="primary"
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{ color: "#007bff" }}
               >
                 <InstagramIcon />
               </IconButton>
-            </Box>
+              <IconButton
+                color="primary"
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <LinkedInIcon />
+              </IconButton>
+            </Stack>
           </Grid>
         </Grid>
-
-        <Box
-          sx={{
-            textAlign: "center",
-            marginTop: "20px",
-            paddingTop: "10px",
-          }}
-        >
-          <Typography variant="body2" sx={{ color: "#555" }}>
-            © {new Date().getFullYear()} Wayfarer. All rights reserved.
-          </Typography>
-        </Box>
+        <Divider sx={{ my: 4 }} />
+        <Typography variant="body2" color="text.secondary" align="center">
+          © {new Date().getFullYear()} Wayfarer. All rights reserved.
+        </Typography>
       </Container>
     </Box>
   );

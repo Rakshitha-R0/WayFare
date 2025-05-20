@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Navbar from '../component/NavBar';
+import Footer from '../component/Footer';
 import { Link, useNavigate } from 'react-router-dom';
-import {useAuth} from '../context/Auth.context';
+import useAuth from '../context/Auth.context';
 import {
   Box,
   Button,
@@ -275,61 +276,7 @@ const Welcome = () => {
       </Box>
 
       {/* Footer */}
-      <Box sx={{
-        bgcolor: 'background.paper',
-        color: 'text.primary',
-        py: 6,
-        mt: 'auto'
-      }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid >
-              <Typography variant="h6" gutterBottom>
-                About Wayfarer
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Your AI-powered travel companion for creating perfect itineraries. Plan your next adventure with ease.
-              </Typography>
-            </Grid>
-            <Grid >
-              <Typography variant="h6" gutterBottom>
-                Quick Links
-              </Typography>
-              <Stack spacing={1}>
-                <Link to="/login" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  Login
-                </Link>
-                <Link to="/signup" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  Sign Up
-                </Link>
-              </Stack>
-            </Grid>
-            <Grid >
-              <Typography variant="h6" gutterBottom>
-                Connect With Us
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <IconButton color="primary">
-                  <FacebookIcon />
-                </IconButton>
-                <IconButton color="primary">
-                  <TwitterIcon />
-                </IconButton>
-                <IconButton color="primary">
-                  <InstagramIcon />
-                </IconButton>
-                <IconButton color="primary">
-                  <LinkedInIcon />
-                </IconButton>
-              </Stack>
-            </Grid>
-          </Grid>
-          <Divider sx={{ my: 4 }} />
-          <Typography variant="body2" color="text.secondary" align="center">
-            © {new Date().getFullYear()} Wayfarer. All rights reserved.
-          </Typography>
-        </Container>
-      </Box>
+      <Footer />
     </Box>
   );
 };

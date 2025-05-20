@@ -20,12 +20,20 @@ export const register=asyncHandler(async (req,res,next)=>{
 })
 
 export const login=asyncHandler(async (req,res,next)=>{
-    let {password}=req.body
+    let {password, googleId} = req.body;
     let exisitingUser=await loginUser(req);
-    if(!exisitingUser || !(await exisitingUser.comparePassword(password,exisitingUser.password))){
-        let err=new Error("Invalid email or password")
-        err.statusCode=400
+    if(!exisitingUser) {
+        let err=new Error("Invalid email or password");
+        err.statusCode=400;
         throw err;
+    }
+    // If googleId is present, skip password check
+    if (!googleId) {
+        if(!(await exisitingUser.comparePassword(password,exisitingUser.password))){
+            let err=new Error("Invalid email or password");
+            err.statusCode=400;
+            throw err;
+        }
     }
     let token=await generateToken(exisitingUser._id)
     res.status(200).json({user:exisitingUser,token})
