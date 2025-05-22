@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Navbar from '../component/NavBar';
 import Footer from '../component/Footer';
@@ -13,19 +13,12 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Stack,
-  Divider,
-  IconButton,
 } from '@mui/material';
 import ExploreIcon from '@mui/icons-material/Explore';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 const featuredLocations = [
   {

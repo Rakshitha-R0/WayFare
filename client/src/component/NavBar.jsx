@@ -1,4 +1,4 @@
-import * as React from "react";
+import {useState} from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -39,10 +39,10 @@ const modalStyle = {
 };
 
 function Navbar() {
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [openModal, setOpenModal] = React.useState(false);
-  const [selectedImage, setSelectedImage] = React.useState(null);
-  const [selectedFile, setSelectedFile] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const { token, user, setUser, logout } = useAuth();
   const navigate = useNavigate();
   const { darkMode, toggleTheme } = useTheme();

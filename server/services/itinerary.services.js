@@ -19,21 +19,26 @@ export const ItineraryPlan = asyncHandler(async (req) => {
     const response = await client.models.generateContent({
       model: "gemini-2.0-flash",
       contents: [
-        `Create a travel itinerary for travel type ${travelType} for the location ${location} from date (${startDate} to date ${endDate},and budget of  $${budget}). Return JSON:
+        `Create a travel itinerary for a ${travelType} trip to ${location} from ${startDate} to ${endDate}, with a total budget of ₹${budget}. Return the result in the following JSON format:
+  {
+    "days": [
       {
-        "days": [{
-          "date": "YYYY-MM-DD",
-          "plan": ["activity/place 1", "activity/place 2"],
-          "cost": 0,
-          "tip": "daily tip"
-          }],
-          "total": {
-            "stay": 0,
-            "food": 0,
-            "travel": 0
-            },
-            "tips": ["general tip 1", "general tip 2"]
-            }`,
+        "date": "YYYY-MM-DD",
+        "plan": ["activity/place 1", "activity/place 2"],
+        "cost": 0,
+        "tip": "daily tip"
+      }
+    ],
+    "total": {
+      "stay": 0,
+      "food": 0,
+      "travel": 0
+    },
+    "tips": [
+      "general tip 1",
+      "general tip 2"
+    ]
+  }`,
       ],
       role: "A friendly travel agent",
       temperature: 0.5,
@@ -46,7 +51,6 @@ export const ItineraryPlan = asyncHandler(async (req) => {
     }
 
     let content = response.text;
-
 
     content = content.replace(/```json\s*|```/g, "").trim();
     const match = content.match(/{[\s\S]*}/);
@@ -73,7 +77,7 @@ export const ItineraryPlan = asyncHandler(async (req) => {
 
 export const getItineraryPlan = asyncHandler(async (req) => {
   const ExistingItinerary = await Itinerary.find({ userID: req.userId });
-  
+
   if (!ExistingItinerary) {
     let err = new Error("Itinerary not found");
     err.statusCode = 404;
@@ -111,7 +115,6 @@ export const autoComplete = asyncHandler(async (req) => {
   return response.data.predictions.map((prediction) => prediction.description);
 });
 
-
 export const getItineraryById = asyncHandler(async (id) => {
   const itinerary = await Itinerary.findById(id);
   if (!itinerary) {
@@ -120,4 +123,4 @@ export const getItineraryById = asyncHandler(async (id) => {
     throw err;
   }
   return itinerary;
-})
+});

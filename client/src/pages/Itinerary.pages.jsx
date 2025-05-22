@@ -95,13 +95,13 @@ const Itinerary = () => {
               Trip to {itinerary?.location}
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <LocationOnIcon sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant="body1">{itinerary?.location}</Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <FlightTakeoffIcon sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
@@ -109,7 +109,7 @@ const Itinerary = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <DateRangeIcon sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant="body1">
@@ -117,7 +117,7 @@ const Itinerary = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AttachMoneyIcon sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant="body1">
@@ -164,7 +164,7 @@ const Itinerary = () => {
           <Paper elevation={1} sx={{ p: 2, mb: 4, bgcolor: 'background.default' }}>
             <Grid container spacing={2}>
               {Object.entries(itinerary?.itinerary.total).map(([category, amount]) => (
-                <Grid item xs={12} sm={6} md={4} key={category}>
+                <Grid  key={category}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
                       {category}:
